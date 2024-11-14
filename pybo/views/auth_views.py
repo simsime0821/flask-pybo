@@ -27,6 +27,7 @@ def signup():
             flash('이미 존재하는 사용자입니다.')
     return render_template('auth/signup.html', form=form)
 
+
 @bp.route('/login/', methods=('GET', 'POST'))
 def login():
     form = UserLoginForm()
@@ -48,6 +49,7 @@ def login():
         flash(error)
     return render_template('auth/login.html', form=form)
 
+
 @bp.before_app_request
 def load_logged_in_user():
     user_id = session.get('user_id')
@@ -56,10 +58,12 @@ def load_logged_in_user():
     else:
         g.user = User.query.get(user_id)
 
+
 @bp.route('/logout/')
 def logout():
     session.clear()
     return redirect(url_for('main.index'))
+
 
 def login_required(view):
     @functools.wraps(view)

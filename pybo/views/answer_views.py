@@ -3,12 +3,10 @@ from datetime import datetime
 from flask import Blueprint, url_for, request, render_template, g, flash
 from werkzeug.utils import redirect
 
-from .auth_views import login_required
-
 from pybo import db
-from ..forms import AnswerForm
+from pybo.forms import AnswerForm
 from pybo.models import Question, Answer
-
+from pybo.views.auth_views import login_required
 
 bp = Blueprint('answer', __name__, url_prefix='/answer')
 
@@ -26,6 +24,7 @@ def create(question_id):
         return redirect('{}#answer_{}'.format(
             url_for('question.detail', question_id=question_id), answer.id))
     return render_template('question/question_detail.html', question=question, form=form)
+
 
 @bp.route('/modify/<int:answer_id>', methods=('GET', 'POST'))
 @login_required
@@ -46,6 +45,7 @@ def modify(answer_id):
         form = AnswerForm(obj=answer)
     return render_template('answer/answer_form.html', form=form)
 
+
 @bp.route('/delete/<int:answer_id>')
 @login_required
 def delete(answer_id):
@@ -62,13 +62,11 @@ def delete(answer_id):
 @bp.route('/vote/<int:answer_id>/')
 @login_required
 def vote(answer_id):
-    _answer = Answer.query.get_or_404(answer_id)
-    if g.user == _answer.user:
+    answer = Answer.query.get_or_404(answer_id)
+    if g.user == answer.user:
         flash('본인이 작성한 글은 추천할수 없습니다')
     else:
-        _answer.voter.append(g.user)
+        answer.voter.append(g.user)
         db.session.commit()
     return redirect('{}#answer_{}'.format(
-        url_for('question.detail', question_id=answer.question.id), answer.id))
-
-
+                url_for('question.detail', question_id=answer.question.id), answer.id))

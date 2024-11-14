@@ -1,15 +1,12 @@
 from datetime import datetime
 
-
 from flask import Blueprint, render_template, request, url_for, g, flash
 from werkzeug.utils import redirect
 
-from pybo.views.auth_views import login_required
-
-from .. import db
-
-from pybo.models import Question, Answer, User
+from pybo import db
 from pybo.forms import QuestionForm, AnswerForm
+from pybo.models import Question, Answer, User
+from pybo.views.auth_views import login_required
 
 bp = Blueprint('question', __name__, url_prefix='/question')
 
@@ -26,15 +23,16 @@ def _list():
         question_list = question_list \
             .join(User) \
             .outerjoin(sub_query, sub_query.c.question_id == Question.id) \
-            .filter(Question.subject.ilike(search) |  # 질문제목
-                    Question.content.ilike(search) |  # 질문내용
-                    User.username.ilike(search) |  # 질문작성자
-                    sub_query.c.content.ilike(search) |  # 답변내용
-                    sub_query.c.username.ilike(search)  # 답변작성자
+            .filter(Question.subject.ilike(search) |  # 질문 제목
+                    Question.content.ilike(search) |  # 질문 내용
+                    User.username.ilike(search) |  # 질문 작성자
+                    sub_query.c.content.ilike(search) |  # 답변 내용
+                    sub_query.c.username.ilike(search)  # 답변 작성자
                     ) \
             .distinct()
     question_list = question_list.paginate(page=page, per_page=10)
     return render_template('question/question_list.html', question_list=question_list, page=page, kw=kw)
+
 
 @bp.route('/detail/<int:question_id>/')
 def detail(question_id):
@@ -42,16 +40,19 @@ def detail(question_id):
     question = Question.query.get_or_404(question_id)
     return render_template('question/question_detail.html', question=question, form=form)
 
+
 @bp.route('/create/', methods=('GET', 'POST'))
 @login_required
 def create():
     form = QuestionForm()
     if request.method == 'POST' and form.validate_on_submit():
-        question = Question(subject=form.subject.data, content=form.content.data, create_date=datetime.now(), user=g.user)
+        question = Question(subject=form.subject.data, content=form.content.data,
+                            create_date=datetime.now(), user=g.user)
         db.session.add(question)
         db.session.commit()
         return redirect(url_for('main.index'))
     return render_template('question/question_form.html', form=form)
+
 
 @bp.route('/modify/<int:question_id>', methods=('GET', 'POST'))
 @login_required
@@ -71,6 +72,7 @@ def modify(question_id):
         form = QuestionForm(obj=question)
     return render_template('question/question_form.html', form=form)
 
+
 @bp.route('/delete/<int:question_id>')
 @login_required
 def delete(question_id):
@@ -82,14 +84,14 @@ def delete(question_id):
     db.session.commit()
     return redirect(url_for('question._list'))
 
+
 @bp.route('/vote/<int:question_id>/')
 @login_required
 def vote(question_id):
-    _question = Question.query.get_or_404(question_id)
-    if g.user == _question.user:
+    question = Question.query.get_or_404(question_id)
+    if g.user == question.user:
         flash('본인이 작성한 글은 추천할수 없습니다')
     else:
-        _question.voter.append(g.user)
+        question.voter.append(g.user)
         db.session.commit()
     return redirect(url_for('question.detail', question_id=question_id))
-
