@@ -1,13 +1,53 @@
-{% extends 'base.html' %}
-{% block content %}
+<!doctype html>
+<html lang="ko">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/static/bootstrap.min.css">
+    <!-- pybo CSS -->
+    <link rel="stylesheet" href="/static/style.css">
+    <title>Hello, pybo!</title>
+</head>
+<body>
+<!-- 네비게이션바 -->
+<!-- 네비게이션바 -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">Pybo</a>
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="/auth/signup/">계정생성</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/auth/login/">로그인</a>
+                </li>
+            </ul>
+            
+        </div>
+    </div>
+</nav>
+<!-- 기본 템플릿 안에 삽입될 내용 Start -->
+
 <div class="container my-3">
     <div class="row my-3">
         <div class="col-6">
-            <a href="{{ url_for('question.create') }}" class="btn btn-primary">질문 등록하기</a>
+            <a href="/question/create/" class="btn btn-primary">질문 등록하기</a>
         </div>
         <div class="col-6">
             <div class="input-group">
-                <input type="text" id="search_kw" class="form-control" value="{{ kw or '' }}">
+                <input type="text" id="search_kw" class="form-control" value="">
                 <div class="input-group-append">
                     <button class="btn btn-outline-secondary" type="button" id="btn_search">찾기</button>
                 </div>
@@ -24,75 +64,72 @@
         </tr>
         </thead>
         <tbody>
-        {% if question_list %}
-        {% for question in question_list.items %}
+        
+        
         <tr class="text-center">
-            <td>{{ question_list.total - ((question_list.page-1) * question_list.per_page) - loop.index0 }}</td>
+            <td>2</td>
             <td class="text-start">
-                <a href="{{ url_for('question.detail', question_id=question.id) }}">{{ question.subject }}</a>
-                {% if question.answer_set|length > 0 %}
-                <span class="text-danger small mx-2">{{ question.answer_set|length }}</span>
-                {% endif %}
+                <a href="/question/detail/2/">플라스크가 무엇입니까?</a>
+                
+                <span class="text-danger small mx-2">1</span>
+                
             </td>
-            <td>{{ question.user.username }}</td>
-            <td>{{ question.create_date|datetime }}</td>
+            <td>이성원</td>  <!-- 글쓴이 추가 -->
+            <td>2024년 11월 13일 PM 02:08</td>
         </tr>
-        {% endfor %}
-        {% else %}
-        <tr>
-            <td colspan="4">질문이 없습니다.</td>
+        
+        <tr class="text-center">
+            <td>1</td>
+            <td class="text-start">
+                <a href="/question/detail/1/">질문</a>
+                
+                <span class="text-danger small mx-2">1</span>
+                
+            </td>
+            <td>이성원</td>  <!-- 글쓴이 추가 -->
+            <td>2024년 11월 12일 PM 05:22</td>
         </tr>
-        {% endif %}
+        
+        
         </tbody>
     </table>
     <!-- 페이징처리 시작 -->
     <ul class="pagination justify-content-center">
         <!-- 이전페이지 -->
-        {% if question_list.has_prev %}
-        <li class="page-item">
-            <a class="page-link" data-page="{{ question_list.prev_num }}" href="javascript:void(0)">이전</a>
-        </li>
-        {% else %}
+        
         <li class="page-item disabled">
-            <a class="page-link" tabindex="-1" aria-disabled="true" href="javascript:void(0)">이전</a>
+            <a class="page-link" data-page="" href="javascript:void(0)"></a>
         </li>
-        {% endif %}
-        {% for page_num in question_list.iter_pages() %}
-        {% if page_num %}
-        {% if page_num != question_list.page %}
-        <li class="page-item">
-            <a class="page-link" data-page="{{ page_num }}" href="javascript:void(0)">{{ page_num }}</a>
-        </li>
-        {% else %}
+        
+        <!-- 페이지번호 -->
+        
+        
+        
         <li class="page-item active" aria-current="page">
-            <a class="page-link" href="#">{{ page_num }}</a>
+            <a class="page-link" href="javascript:void(0)">1</a>
         </li>
-        {% endif %}
-        {% else %}
-        <li class="disabled">
-            <a class="page-link" href="javascript:void(0)">...</a>
-        </li>
-        {% endif %}
-        {% endfor %}
+        
+        
+        
         <!-- 다음페이지 -->
-        {% if question_list.has_next %}
-        <li class="page-item">
-            <a class="page-link" data-page="{{ question_list.next_num }}" href="javascript:void(0)">다음</a>
-        </li>
-        {% else %}
+        
         <li class="page-item disabled">
             <a class="page-link" tabindex="-1" aria-disabled="true" href="javascript:void(0)">다음</a>
         </li>
-        {% endif %}
+        
     </ul>
     <!-- 페이징처리 끝 -->
 </div>
-<form id="searchForm" method="get" action="{{ url_for('question._list') }}">
-    <input type="hidden" id="kw" name="kw" value="{{ kw or '' }}">
-    <input type="hidden" id="page" name="page" value="{{ page }}">
+<form id="searchForm" method="get" action="/question/list/">
+    <input type="hidden" id="kw" name="kw" value="">
+    <input type="hidden" id="page" name="page" value="1">
 </form>
-{% endblock %}
-{% block script %}
+
+<!-- 기본 템플릿 안에 삽입될 내용 End -->
+ <!-- Bootstrap JS -->
+<script src="/static/bootstrap.min.js"></script>
+<!-- 자바스크립트 Start -->
+
 <script type='text/javascript'>
 const page_elements = document.getElementsByClassName("page-link");
 Array.from(page_elements).forEach(function(element) {
@@ -108,4 +145,7 @@ btn_search.addEventListener('click', function() {
     document.getElementById('searchForm').submit();
 });
 </script>
-{% endblock %}
+
+<!-- 자바스크립트 End -->
+</body>
+</html>
